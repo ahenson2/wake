@@ -9,14 +9,13 @@ public class TrackerLine : MonoBehaviour {
   public int resolution;
   private Vector3 startPosition;
   private Vector3 endPosition;
+  private Vector3 helperPosition;
+  public Transform helperObj;
 
   private Vector3 GetCurvePoint(float t)
   {
-    Vector3 helperPoint = startPosition;
-    helperPoint.y = 0;
-
-    Vector3 mid1 = Vector3.Lerp(startPosition, helperPoint, t);
-    Vector3 mid2 = Vector3.Lerp(helperPoint, endPosition, t);
+    Vector3 mid1 = Vector3.Lerp(startPosition, helperPosition, t);
+    Vector3 mid2 = Vector3.Lerp(helperPosition, endPosition, t);
 
     Vector3 result = Vector3.Lerp(mid1, mid2, t);
 
@@ -44,7 +43,9 @@ public class TrackerLine : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
     startPosition = transform.position;
-    endPosition = lineData.GetClosestPoint(transform.position);//transform.position + Vector3.forward + Vector3.down;
+    endPosition = lineData.CalculateTrackerEndpoint(transform.position, endPosition);//transform.position + Vector3.forward + Vector3.down;
+    helperPosition = lineData.CalculateHelperPoint(transform.position);
+    helperObj.position = helperPosition;
     UpdatePoints();
 	}
 }

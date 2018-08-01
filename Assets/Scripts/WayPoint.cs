@@ -9,6 +9,13 @@ public class WayPoint : MonoBehaviour {
   public int index;
   public LineDataCopy lineData;
 
+  //Only used for waypoint 0
+  public GameObject curvePlayer;
+  public GameObject trackerPlayer;
+  public GameObject curveDancer;
+  public GameObject trackerDancer;
+
+
   [ContextMenu("Play")]
   public void Play()
   {
@@ -16,13 +23,36 @@ public class WayPoint : MonoBehaviour {
     {
       audioSource.Play();
       played = true;
-      lineData.ReachIndex(index);
+      float audioLength = audioSource.clip.length;
+      Invoke("NextWaypoint", audioLength);
     }
    
   }
 
+  private void NextWaypoint()
+  {
+    if (index == 0)
+    {
+      SetLinesActive(true);
+    }
+
+    lineData.ReachIndex(index);
+  }
+
+  private void SetLinesActive(bool active)
+  {
+    curvePlayer.SetActive(active);
+    trackerPlayer.SetActive(active);
+    curveDancer.SetActive(active);
+    trackerDancer.SetActive(active);
+  }
+
 	// Use this for initialization
 	void Start () {
+    if (index == 0)
+    {
+      SetLinesActive(false);
+    }
     audioSource = GetComponent<AudioSource>();
 	}
 	
