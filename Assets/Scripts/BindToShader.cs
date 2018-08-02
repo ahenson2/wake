@@ -9,11 +9,14 @@ public class BindToShader : MonoBehaviour
     public TextureFormat textureFormat;
     public Material materialToBind;
     public string texToBind;
+    public bool bindPrev;
 
     private Texture2D texture;
+    private Texture2D prevTexture;
     
     [System.NonSerialized]
     byte[] data;
+    byte[] pData;
 
     AutoResetEvent f = new AutoResetEvent(false);
     int threadId;
@@ -36,6 +39,8 @@ public class BindToShader : MonoBehaviour
 
     void Start()
     {
+        texture = Texture2D.blackTexture;
+        prevTexture = Texture2D.blackTexture;
         if (RealSenseDevice.Instance.ActiveProfile != null)
             OnStartStreaming(RealSenseDevice.Instance.ActiveProfile);
         else
@@ -48,6 +53,9 @@ public class BindToShader : MonoBehaviour
         if (profile == null)
             return;
         var videoProfile = profile as VideoStreamProfile;
+        //set prev texture
+
+
         texture = new Texture2D(videoProfile.Width, videoProfile.Height, textureFormat, false, true)
         {
             wrapMode = TextureWrapMode.Clamp,
@@ -55,6 +63,18 @@ public class BindToShader : MonoBehaviour
         };
         texture.Apply();
         //textureBinding.Invoke(texture);
+        
+        if (bindPrev){
+            prevTexture = new Texture2D(videoProfile.Width, videoProfile.Height, textureFormat, false, true)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point
+            };
+           
+            prevTexture.Apply();
+            materialToBind.SetTexture("_PrevDepthTex", prevTexture);
+        }
+
         materialToBind.SetTexture(texToBind,texture);
         if (fetchFramesFromDevice)
         {
@@ -83,15 +103,26 @@ public class BindToShader : MonoBehaviour
             return;
 
         var vidFrame = ProcessFrame(frame) as VideoFrame;
+        
+        if (data != null){
+            pData = data;
+        }
+
         data = data ?? new byte[vidFrame.Stride * vidFrame.Height];
         vidFrame.CopyTo(data);
     }
-
+    private void UploadPrevTexture()
+    {
+        prevTexture.LoadRawTextureData(pData);
+        prevTexture.Apply();
+    }
     private void UploadTexture()
     {
+        UploadPrevTexture();
         texture.LoadRawTextureData(data);
         texture.Apply();
     }
+    
     private void OnNewSampleThreading(Frame frame)
     {
         UpdateData(frame);

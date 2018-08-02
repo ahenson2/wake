@@ -5,6 +5,7 @@ Shader "Custom/RSShader"
 	Properties {
 		_MainTex ("Base (RGB), Alpha (A)", 2D) = "white" {}
 		_DepthTex ("Vertex Modify", 2D) = "white" {}
+		_PrevDepthTex ("Prev Vertex Modify", 2D) = "black" {}
 		_ModAmount ("Modulation Amount", float) = 1.0
 		_BackgroundSub("Background Point", float) = 0.5
 		_DepthScale("Depth Scale", float) = 100
@@ -18,19 +19,20 @@ Shader "Custom/RSShader"
             "RenderType"="Transparent"
 		}
 		
-		ZWrite On
-		Cull Off
+		ZWrite on
+		Cull off
         Blend SrcAlpha OneMinusSrcAlpha
 		//Fog { Mode Off }
 
 		CGPROGRAM
 		#pragma vertex vert
-		#pragma surface surf BlinnPhong// alpha:transparent
+		#pragma surface surf BlinnPhong alpha:transparent
 		#pragma target 3.0
 		#pragma glsl
 
 		sampler2D _MainTex;
 		sampler2D _DepthTex;
+		sampler2D _PrevDepthTex;
 		sampler2D _BackgroundTex;
 		float _ModAmount;
 		float _BackgroundSub;
@@ -38,21 +40,43 @@ Shader "Custom/RSShader"
 
 		struct Input {
 			float2 uv_MainTex;
+			float3 worldPos;
+			float getRidOfThisPoint;
 		};
 		
-		void vert(inout appdata_full v) {
+		void vert(inout appdata_full v, out Input o) {
 			float4 tex = tex2Dlod(_DepthTex, float4(v.texcoord.xy, 0, 0));
-
+			UNITY_INITIALIZE_OUTPUT(Input,o);
 			//v.vertex.y -= smoothstep(0,1,tex.r * _ModAmount);
-			float d = tex.r * _DepthScale;
+			float d = tex.r;
+			o.getRidOfThisPoint = 0;
 			if (d == 0){
-				
-				v.vertex.y = -_DepthScale;
-			}
+				//v.vertex.z = _DepthScale;
+				tex = tex2Dlod(_PrevDepthTex, float4(v.texcoord.xy, 0, 0));
+				d = tex.r;
+				if (d == 0){
+					d = 0;
+					o.getRidOfThisPoint = 1;
+					float j = 0;
+					float k = 0;
+					for(int i = 0 ; i < 5; i ++){
+						j = sin(i * 0.6) * (i/20.);
+						k = cos(i*0.6) * (i/20.);
+						d = ((tex2Dlod(_DepthTex, float4(v.texcoord.x + k, v.texcoord.y + j, 0, 0))).r);
+						if (d != 0){
+							break;
+						}
+					}
+					if (d == 0 ){
+						d = 100;
+					}
+				}
 
-			else{
-				v.vertex.y -= (d) * _ModAmount;
 			}
+			d *= _DepthScale;
+			v.vertex.y -= (d) * _ModAmount;
+			
+			
 		}
 		
 		void surf (Input IN, inout SurfaceOutput o) {
@@ -65,13 +89,12 @@ Shader "Custom/RSShader"
 			float dd = b.r * _DepthScale;
 			o.Alpha = 1;
 
-			if(d > _BackgroundSub){
+			if(IN.getRidOfThisPoint == 1 ){
 				discard;
-				//o.Alpha = 0;
 			}
 			else if (dd == 0){
 				//o.Alpha = 0;
-				discard;
+				//discard;
 			
 			}
 			else{
