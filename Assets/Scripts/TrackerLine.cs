@@ -11,6 +11,11 @@ public class TrackerLine : MonoBehaviour {
   private Vector3 endPosition;
   private Vector3 helperPosition;
   public Transform helperObj;
+  public GameObject closeLineRenderer;
+  public float closeDistance;
+  public GameObject otherTracker;
+  public int closeWaypoint;
+  public float fadeTime;
 
   private Vector3 GetCurvePoint(float t)
   {
@@ -47,5 +52,58 @@ public class TrackerLine : MonoBehaviour {
     helperPosition = lineData.CalculateHelperPoint(transform.position);
     helperObj.position = helperPosition;
     UpdatePoints();
+
+    if(otherTracker != null && lineData.GetIndex() >= closeWaypoint)
+    {
+      float distance = Vector3.Distance(transform.position, otherTracker.transform.position);
+      if(distance < closeDistance)
+      {
+        Connect();
+      }
+    }
 	}
+
+  [ContextMenu("Connect")]
+  public void Connect()
+  {
+    closeLineRenderer.SetActive(true);
+    StartCoroutine(Fade());
+  }
+
+  private IEnumerator Fade()
+  {
+    //TODO: make line transition between tracker line and close line by lerping between corresponding points
+
+    for (float time = 0; time < fadeTime; time += Time.deltaTime)
+    {
+      float t = time / fadeTime;
+      SetAlpha(1 - t);
+      otherTracker.GetComponent<TrackerLine>().SetAlpha(1 - t);
+      SetObjAlpha(closeLineRenderer, t);
+      yield return new WaitForEndOfFrame();
+    }
+
+    otherTracker.SetActive(false);
+    lineData.gameObject.SetActive(false);
+    otherTracker.GetComponent<TrackerLine>().lineData.gameObject.SetActive(false);
+    gameObject.SetActive(false);
+  }
+
+  public void SetAlpha(float t)
+  {
+    SetObjAlpha(gameObject, t);
+    SetObjAlpha(lineData.gameObject, t);
+  }
+
+  public void SetObjAlpha(GameObject obj, float t)
+  {
+    LineRenderer lr = obj.GetComponent<LineRenderer>();
+    Color startCol = lr.startColor;
+    startCol.a = t;
+    lr.startColor = startCol;
+
+    Color endCol = lr.endColor;
+    endCol.a = t;
+    lr.endColor = endCol;
+  }
 }

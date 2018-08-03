@@ -18,6 +18,11 @@ public class LineDataCopy : MonoBehaviour {
     currentIndex = index;
   }
 
+  public int GetIndex()
+  {
+    return currentIndex;
+  }
+
   private Vector3 GetClosestPoint(Vector3 position, bool ahead)
   {
     float bestT = 0;
