@@ -2,3 +2,6 @@ sceneSetups:
 - path: Assets/Scenes/main.unity
   isLoaded: 1
   isActive: 1
+- path: Assets/RealSenseSDK2.0/Plugins/Scenes/RealSenseTextures.unity
+  isLoaded: 0
+  isActive: 0

@@ -58,6 +58,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 14252ef10fce8df46b0193db15d86027, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -66,15 +70,20 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _PrevDepthTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _RSPlane:
         m_Texture: {fileID: 8400000, guid: 09f81a6c0bb9538448a9b1059ba9a50b, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _BackgroundSub: 0.9
+    - _BackgroundSub: 29.3
     - _BumpScale: 1
+    - _Clip: 1
     - _Cutoff: 0.5
-    - _DepthScale: 20
+    - _DepthScale: 1004.25
     - _DespthScale: 100
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -82,7 +91,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
-    - _ModAmount: 20
+    - _ModAmount: 88.89
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -90,7 +99,9 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
+    - _WindowDistance: -7.62
+    - _WindowSize: 8.1
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.9433962, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
